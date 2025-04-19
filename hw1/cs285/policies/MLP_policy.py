@@ -148,11 +148,13 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         observations, actions = ptu.from_numpy(observations), ptu.from_numpy(actions)
         dist = self.forward(observations)
         loss = -dist.log_prob(actions).mean()
+        entroy = dist.entropy().mean()
         loss.backward()
         self.optimizer.step()
         return {
             # You can add extra logging information here, but keep this line
             'Training Loss': ptu.to_numpy(loss),
+            'Entropy': ptu.to_numpy(entroy)
         }
     def get_action(self, obs: np.ndarray) -> np.ndarray:
         if len(obs.shape) > 1:
